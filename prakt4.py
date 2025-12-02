@@ -1,34 +1,32 @@
+def format_price(price: float) -> str:               # функція форматує ціну в красивий рядок
+    return f"ціна: {price:.2f} грн"                  # повертає ціну з 2 знаками після коми
 
-def format_price(price: float) -> str:
-    return f"ціна: {price:.2f} грн"
 
-
-def check_availability(*items, stock=None) -> dict:
-    if stock is None:
+def check_availability(*items, stock=None) -> dict:  # перевіряє наявність товарів
+    if stock is None:                                # якщо склад не передали — створюємо пустий
         stock = {}
-    return {item: stock.get(item, False) for item in items}
+    return {item: stock.get(item, False) for item in items}  # повертаємо словник товар: наявність
 
-def process_order(order: list, stock: dict, prices: dict):
-  
-    availability = check_availability(*order, stock=stock)
 
-    if not all(availability.values()):
-        print("❌ Замовлення неможливе, бо деякі товари відсутні:")
-        for item, available in availability.items():
-            if not available:
-                print(f"   - {item}")
-        return
+def process_order(order: list, stock: dict, prices: dict):   # опрацьовує замовлення
+    availability = check_availability(*order, stock=stock)    # перевіряємо всі товари в замовленні
 
-   
-    total = sum(prices[item] for item in order)
+    if not all(availability.values()):                        # якщо хоч один товар відсутній
+        print("❌ Замовлення неможливе, бо деякі товари відсутні:")  
+        for item, available in availability.items():          # перебираємо всі товари
+            if not available:                                 # якщо товар відсутній
+                print(f"   - {item}")                         # показуємо який
+        return                                                # припиняємо роботу функції
+
+    total = sum(prices[item] for item in order)               # рахуємо загальну суму замовлення
     print(" Ваше замовлення:")
-    for item in order:
-        print(f"   - {item}: {format_price(prices[item])}")
-    print(f" Загальна {format_price(total)}")
+    for item in order:                                        # виводимо кожен товар
+        print(f"   - {item}: {format_price(prices[item])}")   # показуємо ціну
+    print(f" Загальна {format_price(total)}")                 # загальна сума
 
-def main():
-   
-    prices = {
+
+def main():                                                   # головна функція програми
+    prices = {                                                # словник цін товарів
         "хліб": 25.5,
         "молоко": 32.0,
         "яйця": 48.75,
@@ -36,40 +34,42 @@ def main():
         "масло": 85.3
     }
 
-   
-    stock = {
+    stock = {                                                 # словник наявності товарів
         "хліб": True,
         "молоко": True,
-        "яйця": False,
+        "яйця": False,                                        # яєць немає
         "сир": True,
         "масло": True
     }
 
-    while True:
+    while True:                                               # нескінченне меню
         print("\n--- Магазин ---")
-        print("1. Переглянути ціну товару")
-        print("2. Зробити замовлення")
-        print("3. Вийти")
+        print("1. Переглянути ціну товару")                   # пункт меню — подивитися ціну
+        print("2. Зробити замовлення")                        # пункт меню — замовлення
+        print("3. Вийти")                                     # вихід з програми
 
-        choice = input("Виберіть опцію: ")
+        choice = input("Виберіть опцію: ")                    # користувач вводить вибір
 
-        if choice == "1":
-            item = input("Введіть назву товару: ").strip().lower()
-            if item in prices:
-                print(f"{item}: {format_price(prices[item])}")
+        if choice == "1":                                     # якщо вибрали перегляд ціни
+            item = input("Введіть назву товару: ").strip().lower()  # вводимо назву
+            if item in prices:                                # перевіряємо чи товар існує
+                print(f"{item}: {format_price(prices[item])}")       # показуємо ціну
             else:
-                print("❌ Такого товару немає.")
+                print("❌ Такого товару немає.")              # товар не знайдено
 
-        elif choice == "2":
-            order = input("Введіть товари через кому: ").strip().lower().split(",")
-            order = [item.strip() for item in order]
-            process_order(order, stock, prices)
+        elif choice == "2":                                   # якщо обрали замовлення
+            order = input("Введіть товари через кому: ")      # вводимо список товарів
+            order = order.strip().lower().split(",")          # розділяємо по комах
+            order = [item.strip() for item in order]          # забираємо зайві пробіли
+            process_order(order, stock, prices)               # обробляємо замовлення
 
-        elif choice == "3":
+        elif choice == "3":                                   # вихід з програми
             print("👋 Дякуємо за відвідування!")
             break
-        else:
-            print("❌ Невірний вибір!")
 
-if __name__ == "__main__":
-    main()
+        else:
+            print("❌ Невірний вибір!")                       # неправильний пункт меню
+
+
+if __name__ == "__main__":                                   # запускаємо main тільки якщо файл запускається напряму
+    main()                                                    # викликаємо головну функцію
