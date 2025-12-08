@@ -4,17 +4,13 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-
 TOKEN = "8096671270:AAE9sgF1Ia3vEiSCqWy4x48pIBsYF9YEwJs"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 
-# ===== Функція отримання ціни =====
 async def get_price(symbol):
-    symbol = symbol.lower()
-
     mapping = {
         "ton": "the-open-network",
         "btc": "bitcoin",
@@ -34,7 +30,6 @@ async def get_price(symbol):
     return None
 
 
-# ===== Старт =====
 @dp.message(Command("start"))
 async def start(message: types.Message):
 
@@ -44,32 +39,37 @@ async def start(message: types.Message):
             [KeyboardButton(text="₿ BTC")],
             [KeyboardButton(text="Ξ ETH")],
         ],
-        resize_keyboard=True,       # робить кнопки великі та зручні
-        one_time_keyboard=False    # не ховає після натискання
+        resize_keyboard=True,
+        one_time_keyboard=False
     )
 
     await message.answer("Вибери криптовалюту:", reply_markup=keyboard)
 
 
-# ===== Натискання на ВЕЛИКІ кнопки =====
 @dp.message()
 async def handle_buttons(message: types.Message):
 
-    text = message.text.strip().lower()
+    t = message.text.strip().lower()
 
-    if text == "💎 ton" or text == "ton":
+    # Перевірки по emoji:
+    if "ton" in t or "💎" in t:
         price = await get_price("ton")
-    elif text == "₿ btc" or text == "btc":
+        coin = "TON"
+
+    elif "btc" in t or "₿" in t:
         price = await get_price("btc")
-    elif text == "Ξ eth" or text == "eth":
+        coin = "BTC"
+
+    elif "eth" in t or "ξ" in t:   # <— ДОДАНО: тут ловим ETH
         price = await get_price("eth")
+        coin = "ETH"
+
     else:
         return await message.answer("Не знаю такої команди 🤔")
 
-    await message.answer(f"Ціна {text.upper()}: *{price} USD*", parse_mode="Markdown")
+    await message.answer(f"💰 Ціна {coin}: *{price} USD*", parse_mode="Markdown")
 
 
-# ===== Запуск =====
 async def main():
     print("Bot is running...")
     await dp.start_polling(bot)
